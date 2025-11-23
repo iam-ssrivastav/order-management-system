@@ -12,41 +12,69 @@ A production-ready microservices-based order management system built with Spring
 
 This project implements a **microservices architecture** with event-driven communication using Apache Kafka, demonstrating enterprise-level design patterns and best practices.
 
+### Architecture Diagram
+
+![Architecture Diagram](docs/architecture-diagram.png)
+
+### Component Flow
+
+```mermaid
+graph TB
+    Client[Client Browser]
+    Frontend[Frontend<br/>Nginx :8081]
+    Gateway[API Gateway<br/>Spring Cloud :8080]
+    
+    Order[Order Service<br/>:8082]
+    Inventory[Inventory Service<br/>:8083]
+    Notification[Notification Service<br/>:8084]
+    Auth[Auth Service<br/>:8080]
+    
+    Kafka[Apache Kafka<br/>Event Bus :19092]
+    
+    DB[(PostgreSQL<br/>:5435)]
+    Cache[(Redis<br/>:6381)]
+    Trace[Zipkin<br/>:9412]
+    Metrics[Prometheus<br/>:9990]
+    Dash[Grafana<br/>:3000]
+    
+    Client --> Frontend
+    Frontend --> Gateway
+    Gateway --> Order
+    Gateway --> Inventory
+    Gateway --> Notification
+    Gateway --> Auth
+    
+    Order --> DB
+    Order --> Cache
+    Order --> Kafka
+    
+    Inventory --> DB
+    Inventory --> Kafka
+    
+    Notification --> Kafka
+    
+    Order -.-> Trace
+    Inventory -.-> Trace
+    Notification -.-> Trace
+    Gateway -.-> Trace
+    
+    Order -.-> Metrics
+    Inventory -.-> Metrics
+    Notification -.-> Metrics
+    Gateway -.-> Metrics
+    
+    Metrics --> Dash
+    
+    style Order fill:#4A90E2
+    style Inventory fill:#4A90E2
+    style Notification fill:#4A90E2
+    style Auth fill:#4A90E2
+    style Gateway fill:#7B68EE
+    style Kafka fill:#FF6B6B
+    style DB fill:#50C878
+    style Cache fill:#50C878
 ```
-┌─────────────┐
-│  Frontend   │ :8081
-│   (Nginx)   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ API Gateway │ :8080
-│  (Spring    │
-│   Cloud)    │
-└──────┬──────┘
-       │
-       ├──────────────┬──────────────┬──────────────┐
-       ▼              ▼              ▼              ▼
-┌──────────┐   ┌──────────┐   ┌──────────┐    ┌──────────┐
-│  Order   │   │Inventory │   │Notification│  │  Auth    │
-│ Service  │   │ Service  │   │  Service   │  │ Service  │
-│  :8082   │   │  :8083   │   │   :8084    │  │  :8080   │
-└────┬─────┘   └────┬─────┘   └─────┬──────┘  └──────────┘
-     │              │               │
-     └──────┬───────┴───────────────┘
-            ▼
-     ┌─────────────┐
-     │    Kafka    │ :19092
-     │  (Events)   │
-     └─────────────┘
-            │
-     ┌──────┴──────┬──────────────┐
-     ▼             ▼              ▼
-┌──────────┐  ┌─────────┐   ┌─────────┐
-│PostgreSQL│  │  Redis  │   │ Zipkin  │
-│  :5435   │  │  :6381  │   │  :9412  │
-└──────────┘  └─────────┘   └─────────┘
-```
+
 
 ## ✨ Key Features
 
