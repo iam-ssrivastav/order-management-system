@@ -173,7 +173,58 @@ curl -X GET http://localhost:8080/api/orders/1 \
 
 ---
 
-### 3. Get Orders by Customer
+---
+ 
+### 3. Update Order Status
+
+**Endpoint:** `PUT /api/orders/{orderId}/status`
+
+**Description:** Update the status of an order
+
+**Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer <jwt_token>
+```
+
+**Path Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| orderId | long | Order ID |
+
+**Request Body:**
+```json
+{
+  "status": "SHIPPED"
+}
+```
+
+**Valid Statuses:** `CREATED`, `PAID`, `SHIPPED`, `COMPLETED`, `CANCELLED`
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "productId": "LAPTOP-001",
+  "quantity": 2,
+  "price": 1200.00,
+  "customerId": "testuser",
+  "status": "SHIPPED",
+  "createdAt": "2024-01-01T10:00:00"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X PUT http://localhost:8080/api/orders/1/status \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGc..." \
+  -d '{"status": "SHIPPED"}'
+```
+
+---
+
+### 4. Get Orders by Customer
 
 **Endpoint:** `GET /api/orders/customer/{customerId}`
 
@@ -584,5 +635,5 @@ For API questions or issues:
 
 ---
 
-**Last Updated:** 2024-01-01
+**Last Updated:** 2025-11-23
 **API Version:** 1.0.0

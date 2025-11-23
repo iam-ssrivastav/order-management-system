@@ -48,6 +48,7 @@ graph TB
         PROM[Prometheus<br/>:9990]
         GRAF[Grafana<br/>:3000]
         ZIP[Zipkin<br/>:9412]
+        ELK[ELK Stack<br/>:5601]
     end
     
     UI --> FE
@@ -75,6 +76,10 @@ graph TB
     IS --> PROM
     NS --> PROM
     GW --> PROM
+    
+    OS --> ELK
+    IS --> ELK
+    NS --> ELK
     
     PROM --> GRAF
 ```
@@ -215,6 +220,20 @@ public void consumeOrderEvent(String message) {
     notificationService.sendNotification(orderId, customerId);
 }
 ```
+
+---
+
+### 5. ELK Stack (Observability)
+
+**Components:**
+- **Elasticsearch (Port 9200):** Distributed search and analytics engine.
+- **Logstash (Port 5000):** Server-side data processing pipeline.
+- **Kibana (Port 5601):** Data visualization dashboard.
+
+**Log Flow:**
+1. Microservices send logs via TCP to Logstash.
+2. Logstash processes and indexes logs into Elasticsearch.
+3. Kibana queries Elasticsearch to visualize logs.
 
 ---
 
@@ -509,7 +528,13 @@ services:
 - End-to-end request tracking
 - Service dependency mapping
 - Latency analysis
+- Latency analysis
 - Error investigation
+
+### Centralized Logging (ELK)
+- **Log Aggregation:** All service logs in one place
+- **Real-time Analysis:** View logs as they happen
+- **Search & Filter:** Query logs by trace ID, service, or error level
 
 ### Health Checks
 ```bash
@@ -540,7 +565,9 @@ GET /actuator/prometheus
 ### Long Term
 - [ ] Kubernetes deployment
 - [ ] Multi-region deployment
-- [ ] Advanced monitoring with ELK stack
+- [ ] Kubernetes deployment
+- [ ] Multi-region deployment
+- [ ] Machine learning for demand forecasting
 - [ ] Machine learning for demand forecasting
 
 ---
