@@ -353,7 +353,21 @@ mvn verify
 ./test-e2e.sh
 ```
 
-## 📊 Monitoring
+## 📊 Observability & Monitoring
+
+The system is integrated with the **ELK Stack (Elasticsearch, Logstash, Kibana)** for centralized logging and **Zipkin** for distributed tracing.
+
+### Centralized Logging (ELK)
+All microservices ship logs asynchronously to Logstash, which are then indexed in Elasticsearch and visualized in Kibana.
+
+![ELK Dashboard](docs/elk-dashboard.png)
+
+**Access Points:**
+*   **Kibana:** [http://localhost:5601](http://localhost:5601)
+*   **Zipkin:** [http://localhost:9411](http://localhost:9411)
+*   **Grafana:** [http://localhost:3000](http://localhost:3000)
+
+## 📈 Metrics & Dashboards
 
 ### Prometheus Metrics
 Access metrics at: http://localhost:9990
