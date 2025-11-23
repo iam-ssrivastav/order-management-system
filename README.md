@@ -488,6 +488,31 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Resilience4j for fault tolerance patterns
 - The open-source community
 
+## 🔗 Related Projects
+
+### 🏙️ [CivicPulse - Smart City Incident Triage System](https://github.com/iam-ssrivastav/civic-pulse)
+
+A complementary project showcasing **AI-powered event-driven architecture** for smart cities.
+
+**Key Highlights:**
+- 🤖 **Local AI Integration** - Uses Ollama (Llama3) for automatic incident categorization
+- ⚡ **Real-time Processing** - Apache Kafka for event streaming (similar to this project)
+- 🔒 **Privacy-First** - 100% local processing, zero cloud costs
+- 💰 **Cost Savings** - Saves cities $60,000+/year vs cloud AI solutions
+- 📊 **Live Dashboard** - Real-time incident tracking and analysis
+
+**Tech Stack:** Spring Boot, Spring AI, Apache Kafka, PostgreSQL, Ollama
+
+**Use Case:** Citizens report city issues (potholes, broken lights, etc.), and AI automatically categorizes and prioritizes them in seconds.
+
+> 💡 **Perfect companion project** to learn how to integrate AI with event-driven microservices!
+
+---
+
+**Other Projects:**
+- 📋 [TaskFlow](https://github.com/iam-ssrivastav/taskflow-app) - Modern task management with WebSockets
+- 🎯 [System Design Demo](https://github.com/iam-ssrivastav/system-design-demo) - Design patterns showcase
+
 ## 📧 Contact
 
 For questions or support, please open an issue on GitHub.
