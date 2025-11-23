@@ -1,6 +1,8 @@
 package com.enterprise.order.service;
 
 import com.enterprise.order.dto.OrderRequest;
+import com.enterprise.order.model.OrderStatus;
+import com.enterprise.order.kafka.OrderStatusEventProducer;
 import com.enterprise.order.dto.OrderResponse;
 import com.enterprise.order.entity.Order;
 import com.enterprise.order.kafka.OrderEventProducer;
@@ -21,10 +23,13 @@ public class OrderService {
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     private final OrderRepository orderRepository;
     private final OrderEventProducer orderEventProducer;
+    private final OrderStatusEventProducer orderStatusEventProducer;
 
-    public OrderService(OrderRepository orderRepository, OrderEventProducer orderEventProducer) {
+    public OrderService(OrderRepository orderRepository, OrderEventProducer orderEventProducer,
+            OrderStatusEventProducer orderStatusEventProducer) {
         this.orderRepository = orderRepository;
         this.orderEventProducer = orderEventProducer;
+        this.orderStatusEventProducer = orderStatusEventProducer;
     }
 
     @Transactional
@@ -35,7 +40,7 @@ public class OrderService {
         order.setQuantity(orderRequest.getQuantity());
         order.setPrice(orderRequest.getPrice());
         order.setCustomerId(orderRequest.getCustomerId());
-        order.setStatus("CREATED");
+        order.setStatus(OrderStatus.CREATED);
         order.setCreatedAt(java.time.LocalDateTime.now());
         order.setUpdatedAt(java.time.LocalDateTime.now());
 
@@ -51,7 +56,7 @@ public class OrderService {
     public OrderResponse fallbackPlaceOrder(OrderRequest orderRequest, RuntimeException runtimeException) {
         log.error("Cannot place order. Inventory service is down or error occurred: {}", runtimeException.getMessage());
         OrderResponse response = new OrderResponse();
-        response.setStatus("FAILED");
+        response.setStatus(OrderStatus.CANCELLED);
         response.setCustomerId(orderRequest.getCustomerId());
         return response;
     }
@@ -68,6 +73,18 @@ public class OrderService {
         return orderRepository.findByCustomerId(customerId).stream()
                 .map(this::mapToOrderResponse)
                 .collect(Collectors.toList());
+    }
+
+    public OrderResponse updateStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        OrderStatus oldStatus = order.getStatus();
+        order.setStatus(newStatus);
+        order.setUpdatedAt(java.time.LocalDateTime.now());
+        orderRepository.save(order);
+        // publish status change event
+        orderStatusEventProducer.sendStatusChanged(orderId, oldStatus, newStatus);
+        return mapToOrderResponse(order);
     }
 
     private OrderResponse mapToOrderResponse(Order order) {

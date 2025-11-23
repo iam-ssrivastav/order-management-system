@@ -2,21 +2,23 @@ package com.enterprise.order.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.io.Serializable;
+import com.enterprise.order.model.OrderStatus;
 
-public class OrderResponse {
+public class OrderResponse implements Serializable {
     private Long id;
     private String productId;
     private Integer quantity;
     private BigDecimal price;
     private String customerId;
-    private String status;
+    private OrderStatus status;
     private LocalDateTime createdAt;
 
     public OrderResponse() {
     }
 
     public OrderResponse(Long id, String productId, Integer quantity, BigDecimal price, String customerId,
-            String status, LocalDateTime createdAt) {
+            OrderStatus status, LocalDateTime createdAt) {
         this.id = id;
         this.productId = productId;
         this.quantity = quantity;
@@ -66,11 +68,11 @@ public class OrderResponse {
         this.customerId = customerId;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 

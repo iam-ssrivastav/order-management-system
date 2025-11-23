@@ -30,6 +30,15 @@ public class OrderController {
         return orderService.getOrder(orderId);
     }
 
+    @PutMapping("/{orderId}/status")
+    @ResponseStatus(HttpStatus.OK)
+    @io.swagger.v3.oas.annotations.Operation(summary = "Update order status", description = "Changes the lifecycle status of an existing order")
+    public com.enterprise.order.dto.OrderResponse updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestBody com.enterprise.order.dto.OrderStatusUpdateRequest request) {
+        return orderService.updateStatus(orderId, request.getStatus());
+    }
+
     @GetMapping("/customer/{customerId}")
     @ResponseStatus(HttpStatus.OK)
     public List<OrderResponse> getOrdersByCustomer(@PathVariable String customerId) {

@@ -1,6 +1,7 @@
 package com.enterprise.order.entity;
 
 import jakarta.persistence.*;
+import com.enterprise.order.model.OrderStatus;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -29,8 +30,9 @@ public class Order {
     @Column(nullable = false)
     private String customerId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private OrderStatus status;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -43,7 +45,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(Long id, String productId, Integer quantity, BigDecimal price, String customerId, String status,
+    public Order(Long id, String productId, Integer quantity, BigDecimal price, String customerId, OrderStatus status,
             LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.productId = productId;
@@ -95,11 +97,11 @@ public class Order {
         this.customerId = customerId;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 

@@ -1,8 +1,10 @@
 # Enterprise Order Management System
 
+## About
+
 A production-ready microservices-based order management system built with Spring Boot, demonstrating modern backend architecture patterns and best practices.
 
-> **Part of a portfolio showcasing event-driven architectures** - Also check out [CivicPulse](https://github.com/iam-ssrivastav/civic-pulse), an AI-powered smart city system using the same Kafka + Spring Boot stack with local LLM integration.
+> **Part of a portfolio showcasing event‑driven architectures** – also check out [CivicPulse](https://github.com/iam-ssrivastav/civic-pulse), an AI‑powered smart‑city system using the same Kafka + Spring Boot stack with local LLM integration.
 
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen)
