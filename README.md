@@ -35,40 +35,6 @@ graph TB
     
     Kafka[Apache Kafka<br/>Event Bus :19092]
     
-    DB[(PostgreSQL<br/>:5435)]
-    Cache[(Redis<br/>:6381)]
-    Trace[Zipkin<br/>:9412]
-    Metrics[Prometheus<br/>:9990]
-    Dash[Grafana<br/>:3000]
-    
-    Client --> Frontend
-    Frontend --> Gateway
-    Gateway --> Order
-    Gateway --> Inventory
-    Gateway --> Notification
-    Gateway --> Auth
-    
-    Order --> DB
-    Order --> Cache
-    Order --> Kafka
-    
-    Inventory --> DB
-    Inventory --> Kafka
-    
-    Notification --> Kafka
-    
-    Order -.-> Trace
-    Inventory -.-> Trace
-    Notification -.-> Trace
-    Gateway -.-> Trace
-    
-    Order -.-> Metrics
-    Inventory -.-> Metrics
-    Notification -.-> Metrics
-    Gateway -.-> Metrics
-    
-    Metrics --> Dash
-    
     style Order fill:#4A90E2
     style Inventory fill:#4A90E2
     style Notification fill:#4A90E2
