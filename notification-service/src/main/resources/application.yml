@@ -12,6 +12,23 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       properties:
         spring.json.trusted.packages: "*"
+  
+  # Gmail SMTP Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: shivamsriv961@gmail.com
+    password: YOUR_APP_PASSWORD_HERE  # Replace with your Gmail App Password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 management:
   endpoints:
