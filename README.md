@@ -35,6 +35,53 @@ graph TB
     
     Kafka[Apache Kafka<br/>Event Bus :19092]
     
+    DB[(PostgreSQL<br/>:5435)]
+    Cache[(Redis<br/>:6381)]
+    Trace[Zipkin<br/>:9412]
+    Metrics[Prometheus<br/>:9990]
+    Dash[Grafana<br/>:3000]
+    
+    %% ELK Stack
+    Logstash[Logstash<br/>:5000]
+    ES[(Elasticsearch<br/>:9200)]
+    Kibana[Kibana<br/>:5601]
+    
+    Client --> Frontend
+    Frontend --> Gateway
+    Gateway --> Order
+    Gateway --> Inventory
+    Gateway --> Notification
+    Gateway --> Auth
+    
+    Order --> DB
+    Order --> Cache
+    Order --> Kafka
+    
+    Inventory --> DB
+    Inventory --> Kafka
+    
+    Notification --> Kafka
+    
+    %% Observability Connections
+    Order -.-> Trace
+    Inventory -.-> Trace
+    Notification -.-> Trace
+    Gateway -.-> Trace
+    
+    Order -.-> Metrics
+    Inventory -.-> Metrics
+    Notification -.-> Metrics
+    Gateway -.-> Metrics
+    
+    Metrics --> Dash
+    
+    %% Logging Connections
+    Order -.-> Logstash
+    Inventory -.-> Logstash
+    Notification -.-> Logstash
+    Logstash --> ES
+    ES --> Kibana
+    
     style Order fill:#4A90E2
     style Inventory fill:#4A90E2
     style Notification fill:#4A90E2
@@ -43,6 +90,9 @@ graph TB
     style Kafka fill:#FF6B6B
     style DB fill:#50C878
     style Cache fill:#50C878
+    style Logstash fill:#F5A623
+    style ES fill:#F5A623
+    style Kibana fill:#F5A623
 ```
 
 
