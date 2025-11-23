@@ -27,7 +27,7 @@ This project implements a **microservices architecture** with event-driven commu
        │
        ├──────────────┬──────────────┬──────────────┐
        ▼              ▼              ▼              ▼
-┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐
+┌──────────┐   ┌──────────┐   ┌──────────┐    ┌──────────┐
 │  Order   │   │Inventory │   │Notification│  │  Auth    │
 │ Service  │   │ Service  │   │  Service   │  │ Service  │
 │  :8082   │   │  :8083   │   │   :8084    │  │  :8080   │
