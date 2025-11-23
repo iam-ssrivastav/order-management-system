@@ -554,3 +554,13 @@ For questions or support, please open an issue on GitHub.
 ---
 
 **Built with ❤️ using Spring Boot, Kafka, and modern microservices patterns**
+
+## 👨‍💻 Author
+
+**Shivam Srivastav**
+
+*   **GitHub:** [iam-ssrivastav](https://github.com/iam-ssrivastav)
+*   **Role:** Lead Architect & Developer
+
+---
+*Built with ❤️ by Shivam Srivastav*

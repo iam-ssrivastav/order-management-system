@@ -10,6 +10,11 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.Collections;
 
+/**
+ * Main entry point for the API Gateway.
+ *
+ * @author Shivam Srivastav
+ */
 @SpringBootApplication
 public class GatewayApplication {
 

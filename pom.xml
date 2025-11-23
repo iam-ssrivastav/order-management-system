@@ -15,6 +15,18 @@
     <description>Enterprise Order Management System with Microservices</description>
     <packaging>pom</packaging>
 
+    <developers>
+        <developer>
+            <id>shivamsrivastav</id>
+            <name>Shivam Srivastav</name>
+            <email>shivamsrivastav@example.com</email>
+            <roles>
+                <role>Architect</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <modules>
         <module>api-gateway</module>
         <module>order-service</module>
