@@ -8,16 +8,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationService {
 
-    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+    // Demo email for notifications
+    private static final String DEMO_EMAIL = "shivamsriv961@gmail.com";
 
-    @Async
     public void sendNotification(String orderId, String customerId) {
-        // Simulate email sending delay
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // In a real application, this would send an actual email
+        // For now, we'll log it with the email address
+
+        String emailMessage = String.format(
+                "To: %s\n" +
+                        "Subject: Order Confirmation - Order #%s\n" +
+                        "Body: Dear %s, your order #%s has been placed successfully!\n" +
+                        "Thank you for your purchase.",
+                DEMO_EMAIL, orderId, customerId, orderId);
+
         log.info("SENT EMAIL NOTIFICATION for Order {} to Customer {}", orderId, customerId);
+        log.info("Email Details:\n{}", emailMessage);
     }
 }
