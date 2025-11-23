@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Order System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="auth-container">
+        <div class="card">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1>Nexus</h1>
+                <p style="color: var(--text-gray);">Enterprise Order Management</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" value="admin" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" value="password" required>
+                </div>
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard container">
+        <header class="header">
+            <div>
+                <h1>Dashboard</h1>
+                <p style="color: var(--text-gray);">Welcome back, <span id="user-display">User</span></p>
+            </div>
+            <button onclick="logout()" style="width: auto; background-color: #334155;">Logout</button>
+        </header>
+
+        <div class="grid">
+            <!-- Place Order -->
+            <div class="stats-card">
+                <h2>Place Order</h2>
+                <form id="order-form">
+                    <div class="form-group">
+                        <label>Product ID</label>
+                        <select id="product-select"
+                            style="width: 100%; padding: 0.75rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 0.5rem;">
+                            <option value="PROD-001">Laptop (PROD-001)</option>
+                            <option value="PROD-002">Smartphone (PROD-002)</option>
+                            <option value="PROD-003">Headphones (PROD-003)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="quantity" value="1" min="1" required>
+                    </div>
+                    <button type="submit">Place Order</button>
+                </form>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="stats-card" style="grid-column: span 2;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Recent Orders</h2>
+                    <button onclick="fetchOrders()"
+                        style="width: auto; padding: 0.5rem 1rem; font-size: 0.875rem;">Refresh</button>
+                </div>
+                <div id="orders-list" class="product-list">
+                    <!-- Orders will be populated here -->
+                    <p style="color: var(--text-gray); text-align: center;">No orders yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
