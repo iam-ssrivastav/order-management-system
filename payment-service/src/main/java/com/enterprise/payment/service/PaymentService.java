@@ -30,6 +30,14 @@ public class PaymentService {
     public Payment processPayment(Long orderId, String customerId, BigDecimal amount, String paymentMethod) {
         logger.info("Processing payment for order: {}, customer: {}, amount: {}", orderId, customerId, amount);
 
+        // ✅ IDEMPOTENCY CHECK: Return existing payment if already processed
+        Optional<Payment> existingPayment = paymentRepository.findByOrderId(orderId);
+        if (existingPayment.isPresent()) {
+            logger.info("Payment already processed for order: {}. Returning existing payment with status: {}",
+                    orderId, existingPayment.get().getStatus());
+            return existingPayment.get();
+        }
+
         Payment payment = new Payment();
         payment.setOrderId(orderId);
         payment.setCustomerId(customerId);
