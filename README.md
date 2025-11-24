@@ -31,6 +31,7 @@ graph TB
     Order[Order Service<br/>:8082]
     Inventory[Inventory Service<br/>:8083]
     Notification[Notification Service<br/>:8084]
+    Payment[Payment Service<br/>:8085]
     Auth[Auth Service<br/>:8080]
     
     Kafka[Apache Kafka<br/>Event Bus :19092]
@@ -51,11 +52,15 @@ graph TB
     Gateway --> Order
     Gateway --> Inventory
     Gateway --> Notification
+    Gateway --> Payment
     Gateway --> Auth
     
     Order --> DB
     Order --> Cache
     Order --> Kafka
+    
+    Payment --> DB
+    Payment --> Kafka
     
     Inventory --> DB
     Inventory --> Kafka
@@ -66,11 +71,13 @@ graph TB
     Order -.-> Trace
     Inventory -.-> Trace
     Notification -.-> Trace
+    Payment -.-> Trace
     Gateway -.-> Trace
     
     Order -.-> Metrics
     Inventory -.-> Metrics
     Notification -.-> Metrics
+    Payment -.-> Metrics
     Gateway -.-> Metrics
     
     Metrics --> Dash
@@ -85,6 +92,7 @@ graph TB
     style Order fill:#4A90E2
     style Inventory fill:#4A90E2
     style Notification fill:#4A90E2
+    style Payment fill:#4A90E2
     style Auth fill:#4A90E2
     style Gateway fill:#7B68EE
     style Kafka fill:#FF6B6B
@@ -101,6 +109,7 @@ graph TB
 ### Microservices Architecture
 - **API Gateway**: Centralized entry point with routing and authentication
 - **Order Service**: Order lifecycle management with circuit breaker pattern
+- **Payment Service**: Mock payment processing with 80/20 success/failure simulation
 - **Inventory Service**: Stock management with event-driven updates
 - **Notification Service**: Asynchronous notification processing
 
@@ -314,6 +323,32 @@ curl -X POST http://localhost:8080/api/notifications/send \
 curl -X GET http://localhost:8080/api/notifications
 ```
 
+### Payments
+
+**Check Payment Status**
+```bash
+curl -X GET http://localhost:8080/api/payments/order/{orderId}
+```
+
+Example response:
+```json
+{
+  "id": 14,
+  "orderId": 10,
+  "customerId": "paymenttest3",
+  "amount": 200.00,
+  "status": "SUCCESS",
+  "paymentMethod": "CREDIT_CARD",
+  "transactionId": "31e609a3-6b3f-4f97-99e9-2304b40db2a7",
+  "createdAt": "2025-11-24T09:25:35.088256",
+  "updatedAt": "2025-11-24T09:25:35.0938"
+}
+```
+
+**Note**: Payment is automatically triggered when an order is placed. The payment service simulates:
+- **80% Success Rate**: Payment succeeds and inventory is deducted
+- **20% Failure Rate**: Payment fails and inventory is NOT deducted (Saga pattern)
+
 ## 🏛️ Project Structure
 
 ```
@@ -362,6 +397,7 @@ order-management-system/
 | API Gateway | 8080 | Entry point |
 | Order Service | 8082 | Order management |
 | Inventory Service | 8083 | Stock management |
+| Payment Service | 8085 | Payment processing |
 | Notification Service | 8084 | Notifications |
 | Kafka | 19092 | Message broker |
 | PostgreSQL | 5435 | Database |
@@ -448,21 +484,32 @@ Trace requests across all microservices to identify bottlenecks.
 
 ## 🔄 Event Flow
 
-### Order Placement Flow
+### Order Placement Flow (with Payment)
 
 1. **User** submits order via Frontend
 2. **API Gateway** validates JWT and routes to Order Service
 3. **Order Service**:
    - Saves order to PostgreSQL
    - Caches in Redis
-   - Publishes `order-events` to Kafka
+   - Publishes `OrderCreatedEvent` to Kafka
 4. **Kafka** distributes event to subscribers
-5. **Inventory Service**:
-   - Consumes event
-   - Updates stock levels
-6. **Notification Service**:
-   - Consumes event
+5. **Payment Service**:
+   - Consumes `OrderCreatedEvent`
+   - Processes payment (80% success, 20% failure)
+   - Publishes `PaymentSuccessEvent` or `PaymentFailedEvent`
+6. **Inventory Service**:
+   - Consumes `PaymentSuccessEvent`
+   - Deducts stock levels
+7. **Notification Service**:
+   - Consumes payment events
    - Sends notification to customer
+
+### Saga Pattern (Payment Failure)
+When payment fails, the system demonstrates eventual consistency:
+- Payment Service publishes `PaymentFailedEvent`
+- Inventory Service does NOT deduct stock
+- Order status remains `CREATED` (can be updated to `FAILED` in future enhancement)
+- Customer receives failure notification
 
 ## 🛡️ Resilience Patterns
 

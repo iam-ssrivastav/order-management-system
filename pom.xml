@@ -32,6 +32,7 @@
         <module>order-service</module>
         <module>inventory-service</module>
         <module>notification-service</module>
+        <module>payment-service</module>
     </modules>
 
     <properties>
