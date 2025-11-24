@@ -19,6 +19,24 @@ spring:
           uri: http://localhost:8084
           predicates:
             - Path=/api/notifications/**
+        - id: order-service-docs
+          uri: http://localhost:8082
+          predicates:
+            - Path=/order-service/v3/api-docs
+          filters:
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
+        - id: inventory-service-docs
+          uri: http://localhost:8083
+          predicates:
+            - Path=/inventory-service/v3/api-docs
+          filters:
+            - RewritePath=/inventory-service/(?<segment>.*), /$\{segment}
+        - id: notification-service-docs
+          uri: http://localhost:8084
+          predicates:
+            - Path=/notification-service/v3/api-docs
+          filters:
+            - RewritePath=/notification-service/(?<segment>.*), /$\{segment}
       globalcors:
         cors-configurations:
           '[/**]':
@@ -34,3 +52,13 @@ management:
   endpoint:
     health:
       show-details: always
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Order Service
+        url: /order-service/v3/api-docs
+      - name: Inventory Service
+        url: /inventory-service/v3/api-docs
+      - name: Notification Service
+        url: /notification-service/v3/api-docs

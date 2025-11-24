@@ -13,18 +13,22 @@ import org.springframework.stereotype.Service;
 public class OrderEventProducer {
 
     private static final Logger log = LoggerFactory.getLogger(OrderEventProducer.class);
-    private final KafkaTemplate<String, OrderResponse> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    public OrderEventProducer(KafkaTemplate<String, OrderResponse> kafkaTemplate) {
+    public OrderEventProducer(KafkaTemplate<String, String> kafkaTemplate,
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
         this.kafkaTemplate = kafkaTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public void sendMessage(OrderResponse orderEvent) {
         log.info("Sending order event to Kafka: {}", orderEvent);
-        Message<OrderResponse> message = MessageBuilder
-                .withPayload(orderEvent)
-                .setHeader(KafkaHeaders.TOPIC, "order-events")
-                .build();
-        kafkaTemplate.send(message);
+        try {
+            String message = objectMapper.writeValueAsString(orderEvent);
+            kafkaTemplate.send("order-events", message);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            log.error("Error serializing order event", e);
+        }
     }
 }

@@ -19,11 +19,12 @@ spring:
     baseline-on-migrate: true
     clean-on-validation-error: true
     clean-disabled: false
+    table: flyway_schema_history_order
   kafka:
     bootstrap-servers: localhost:19092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
   data:
     redis:
       host: localhost

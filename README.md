@@ -201,7 +201,8 @@ mvn spring-boot:run
 Run the end-to-end test script:
 
 ```bash
-./test-e2e.sh
+./verify-all-apis.sh
+```
 ```
 
 Expected output:
@@ -223,6 +224,14 @@ Expected output:
 | **Zipkin** | http://localhost:9412 | - |
 
 ## 📖 API Documentation
+
+### 📚 Centralized Swagger UI
+Access all API documentation in one place:
+**[http://localhost:8080/webjars/swagger-ui/index.html](http://localhost:8080/webjars/swagger-ui/index.html)**
+
+Use the dropdown in the top-right to switch between services.
+
+### Authentication
 
 ### Authentication
 
@@ -275,6 +284,34 @@ curl -X GET http://localhost:8080/api/inventory/LAPTOP-001
 curl -X PUT http://localhost:8080/api/inventory/LAPTOP-001 \
   -H "Content-Type: application/json" \
   -d '{"quantity": 100}'
+```
+
+**Add Stock**
+```bash
+curl -X POST http://localhost:8080/api/inventory \
+  -H "Content-Type: application/json" \
+  -d '{"productId": "LAPTOP-001", "quantity": 50}'
+```
+
+**Deduct Stock**
+```bash
+curl -X POST http://localhost:8080/api/inventory/deduct \
+  -H "Content-Type: application/json" \
+  -d '{"productId": "LAPTOP-001", "quantity": 10}'
+```
+
+### Notifications
+
+**Send Manual Notification**
+```bash
+curl -X POST http://localhost:8080/api/notifications/send \
+  -H "Content-Type: application/json" \
+  -d '{"orderId": "123", "customerId": "user-1"}'
+```
+
+**View Notification History**
+```bash
+curl -X GET http://localhost:8080/api/notifications
 ```
 
 ## 🏛️ Project Structure

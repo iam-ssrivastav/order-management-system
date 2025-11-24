@@ -23,7 +23,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
-        if (path.contains("/auth/token")) {
+        if (path.contains("/auth/token") ||
+                path.contains("/v3/api-docs") ||
+                path.contains("/swagger-ui") ||
+                path.contains("/webjars")) {
             return chain.filter(exchange);
         }
 

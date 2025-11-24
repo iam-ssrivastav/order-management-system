@@ -19,16 +19,15 @@ spring:
     baseline-on-migrate: true
     clean-on-validation-error: true
     clean-disabled: false
+    table: flyway_schema_history_inventory
     locations: classpath:db/migration
   kafka:
     bootstrap-servers: localhost:19092
     consumer:
-      group-id: inventory-group
+      group-id: inventory-group-v2
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
 
 management:
   endpoints:

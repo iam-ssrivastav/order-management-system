@@ -6,12 +6,10 @@ spring:
   kafka:
     bootstrap-servers: localhost:19092
     consumer:
-      group-id: notification-group
+      group-id: notification-group-v2
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
   
   # Gmail SMTP Configuration
   mail:
@@ -38,3 +36,8 @@ management:
   tracing:
     sampling:
       probability: 1.0
+
+app:
+  notification:
+    email:
+      enabled: false

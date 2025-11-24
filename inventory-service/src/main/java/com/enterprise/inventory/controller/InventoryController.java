@@ -21,4 +21,18 @@ public class InventoryController {
     public Inventory getInventory(@PathVariable String productId) {
         return inventoryService.getInventory(productId);
     }
+
+    @org.springframework.web.bind.annotation.PostMapping
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.OK)
+    public Inventory addStock(
+            @org.springframework.web.bind.annotation.RequestBody com.enterprise.inventory.dto.StockUpdateRequest request) {
+        return inventoryService.addStock(request.getProductId(), request.getQuantity());
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/deduct")
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.OK)
+    public void deductStock(
+            @org.springframework.web.bind.annotation.RequestBody com.enterprise.inventory.dto.StockUpdateRequest request) {
+        inventoryService.deductStock(request.getProductId(), request.getQuantity());
+    }
 }

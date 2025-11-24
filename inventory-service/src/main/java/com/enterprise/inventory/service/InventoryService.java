@@ -31,6 +31,15 @@ public class InventoryService {
         log.info("Stock deducted for product {}. New quantity: {}", productId, inventory.getQuantity());
     }
 
+    @Transactional
+    public Inventory addStock(String productId, Integer quantity) {
+        Inventory inventory = inventoryRepository.findByProductId(productId)
+                .orElse(new Inventory(null, productId, 0, null));
+
+        inventory.setQuantity(inventory.getQuantity() + quantity);
+        return inventoryRepository.save(inventory);
+    }
+
     public Inventory getInventory(String productId) {
         return inventoryRepository.findByProductId(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));

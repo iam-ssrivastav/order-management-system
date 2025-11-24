@@ -62,9 +62,9 @@ echo ""
 # Test 4: Database connectivity
 echo "💾 Step 4: Testing Database Connectivity..."
 echo "-----------------------------------"
-DB_RESULT=$(docker exec postgres psql -U admin -d order_db -t -c "SELECT 1;" 2>/dev/null || echo "0")
+DB_RESULT=$(docker exec -e PGPASSWORD=password postgres psql -U admin -d order_db -t -c "SELECT 1;" 2>/dev/null | tr -d '[:space:]' || echo "0")
 
-if [ "$DB_RESULT" = " 1" ]; then
+if [ "$DB_RESULT" = "1" ]; then
     echo -e "${GREEN}✓${NC} PostgreSQL connection successful"
 else
     echo -e "${RED}✗${NC} PostgreSQL connection failed"

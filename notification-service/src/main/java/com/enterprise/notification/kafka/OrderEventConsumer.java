@@ -21,15 +21,19 @@ public class OrderEventConsumer {
         this.objectMapper = objectMapper;
     }
 
-    @KafkaListener(topics = "order-events", groupId = "notification-group")
+    @KafkaListener(topics = "order-events", groupId = "notification-group-v2")
     public void consumeOrderEvent(String message) {
         log.info("Received order event for notification: {}", message);
         try {
             JsonNode jsonNode = objectMapper.readTree(message);
-            String orderId = jsonNode.get("id").asText();
-            String customerId = jsonNode.get("customerId").asText();
-
-            notificationService.sendNotification(orderId, customerId);
+            log.info("Parsed JsonNode: {}", jsonNode);
+            if (jsonNode.has("id") && jsonNode.has("customerId")) {
+                String orderId = jsonNode.get("id").asText();
+                String customerId = jsonNode.get("customerId").asText();
+                notificationService.sendNotification(orderId, customerId);
+            } else {
+                log.error("Missing id or customerId in event: {}", message);
+            }
         } catch (JsonProcessingException e) {
             log.error("Error processing order event", e);
         }
