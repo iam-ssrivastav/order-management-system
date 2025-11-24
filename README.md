@@ -108,21 +108,21 @@ graph TB
 
 ### Microservices Architecture
 - **API Gateway**: Centralized entry point with routing and authentication
-- **Order Service**: Order lifecycle management with circuit breaker pattern
-- **Payment Service**: Mock payment processing with 80/20 success/failure simulation
-- **Inventory Service**: Stock management with event-driven updates
+- **Order Service**: Order lifecycle management with circuit breaker pattern and cancellation support
+- **Payment Service**: Mock payment processing with 80/20 success/failure simulation and refund capabilities
+- **Inventory Service**: Stock management with event-driven updates and restoration
 - **Notification Service**: Asynchronous notification processing
 
 ### Event-Driven Communication
-- **Apache Kafka**: Asynchronous messaging between services
-- **Event Sourcing**: Order events published and consumed by multiple services
-- **Loose Coupling**: Services communicate through events, not direct calls
-
+### Distributed Patterns
+- **Event-Driven Architecture**: Kafka-based asynchronous communication
+- **Saga Pattern**: Choreography-based distributed transactions
+  - Forward transactions: Order → Payment → Inventory
+  - Compensating transactions: Cancel → Refund + Restore Stock
+- **CQRS**: Separate read/write paths with caching
+- **API Gateway Pattern**: Single entry point with routing
 ### Design Patterns & Best Practices
 - ✅ **Circuit Breaker** (Resilience4j) - Fault tolerance
-- ✅ **API Gateway** Pattern - Centralized routing
-- ✅ **Event-Driven Architecture** - Async communication
-- ✅ **CQRS** - Command Query Responsibility Segregation
 - ✅ **Repository Pattern** - Data access abstraction
 - ✅ **DTO Pattern** - Data transfer objects
 - ✅ **Builder Pattern** - Object construction
@@ -510,6 +510,26 @@ When payment fails, the system demonstrates eventual consistency:
 - Inventory Service does NOT deduct stock
 - Order status remains `CREATED` (can be updated to `FAILED` in future enhancement)
 - Customer receives failure notification
+
+### Order Cancellation Flow (Compensating Transactions)
+When an order is cancelled, the system performs rollback via compensating transactions:
+
+1. **User** cancels order via API
+2. **Order Service**:
+   - Validates order can be cancelled (not SHIPPED)
+   - Updates status to `CANCELLED`
+   - Publishes `OrderCancelledEvent` to Kafka
+3. **Kafka** distributes event to subscribers
+4. **Payment Service** (Compensating Transaction):
+   - Finds payment by orderId
+   - Validates payment status is `SUCCESS`
+   - Updates status to `REFUNDED`
+   - Publishes refund notification
+5. **Inventory Service** (Compensating Transaction):
+   - Restores stock quantity
+   - Logs restoration for audit
+6. **Notification Service**:
+   - Sends cancellation confirmation email
 
 ## 🛡️ Resilience Patterns
 
