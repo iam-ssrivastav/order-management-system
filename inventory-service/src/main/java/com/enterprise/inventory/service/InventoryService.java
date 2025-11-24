@@ -44,4 +44,15 @@ public class InventoryService {
         return inventoryRepository.findByProductId(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
+
+    @Transactional
+    public void restoreStock(String productId, Integer quantity) {
+        Inventory inventory = inventoryRepository.findByProductId(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        inventory.setQuantity(inventory.getQuantity() + quantity);
+        inventoryRepository.save(inventory);
+        log.info("Stock restored for product {}. New quantity: {} (compensating transaction)",
+                productId, inventory.getQuantity());
+    }
 }

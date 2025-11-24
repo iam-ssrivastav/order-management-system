@@ -3,6 +3,7 @@ package com.enterprise.order.service;
 import com.enterprise.order.dto.OrderRequest;
 import com.enterprise.order.model.OrderStatus;
 import com.enterprise.order.kafka.OrderStatusEventProducer;
+import com.enterprise.order.kafka.OrderCancellationProducer;
 import com.enterprise.order.dto.OrderResponse;
 import com.enterprise.order.entity.Order;
 import com.enterprise.order.kafka.OrderEventProducer;
@@ -24,12 +25,14 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderEventProducer orderEventProducer;
     private final OrderStatusEventProducer orderStatusEventProducer;
+    private final OrderCancellationProducer orderCancellationProducer;
 
     public OrderService(OrderRepository orderRepository, OrderEventProducer orderEventProducer,
-            OrderStatusEventProducer orderStatusEventProducer) {
+            OrderStatusEventProducer orderStatusEventProducer, OrderCancellationProducer orderCancellationProducer) {
         this.orderRepository = orderRepository;
         this.orderEventProducer = orderEventProducer;
         this.orderStatusEventProducer = orderStatusEventProducer;
+        this.orderCancellationProducer = orderCancellationProducer;
     }
 
     @Transactional
@@ -84,6 +87,41 @@ public class OrderService {
         orderRepository.save(order);
         // publish status change event
         orderStatusEventProducer.sendStatusChanged(orderId, oldStatus, newStatus);
+        return mapToOrderResponse(order);
+    }
+
+    @Transactional
+    public OrderResponse cancelOrder(Long orderId, String reason) {
+        log.info("Cancelling order: {}", orderId);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+
+        // Validate order can be cancelled
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new RuntimeException("Order is already cancelled");
+        }
+
+        if (order.getStatus() == OrderStatus.SHIPPED) {
+            throw new RuntimeException("Cannot cancel order in " + order.getStatus() + " status");
+        }
+
+        // Update order status
+        OrderStatus oldStatus = order.getStatus();
+        order.setStatus(OrderStatus.CANCELLED);
+        order.setUpdatedAt(java.time.LocalDateTime.now());
+        orderRepository.save(order);
+
+        log.info("Order {} cancelled successfully. Previous status: {}", orderId, oldStatus);
+
+        // Publish cancellation event for compensating transactions
+        orderCancellationProducer.publishOrderCancellation(
+                orderId,
+                order.getCustomerId(),
+                order.getProductId(),
+                order.getQuantity(),
+                reason != null ? reason : "Customer requested");
+
         return mapToOrderResponse(order);
     }
 

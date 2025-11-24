@@ -4,6 +4,7 @@ import com.enterprise.order.dto.OrderRequest;
 import com.enterprise.order.dto.OrderResponse;
 import com.enterprise.order.service.OrderService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,8 +41,19 @@ public class OrderController {
     }
 
     @GetMapping("/customer/{customerId}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<OrderResponse> getOrdersByCustomer(@PathVariable String customerId) {
-        return orderService.getOrdersByCustomer(customerId);
+    public ResponseEntity<List<OrderResponse>> getOrdersByCustomer(@PathVariable String customerId) {
+        return ResponseEntity.ok(orderService.getOrdersByCustomer(customerId));
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<OrderResponse> cancelOrder(
+            @PathVariable Long id,
+            @RequestParam(required = false) String reason) {
+        try {
+            OrderResponse cancelledOrder = orderService.cancelOrder(id, reason);
+            return ResponseEntity.ok(cancelledOrder);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

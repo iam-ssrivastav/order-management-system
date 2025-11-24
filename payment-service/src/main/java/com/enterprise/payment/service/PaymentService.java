@@ -72,4 +72,41 @@ public class PaymentService {
     public Optional<Payment> getPaymentByOrderId(Long orderId) {
         return paymentRepository.findByOrderId(orderId);
     }
+
+    @Transactional
+    public Payment refundPayment(Long orderId, String reason) {
+        logger.info("Processing refund for order: {}, reason: {}", orderId, reason);
+
+        Optional<Payment> existingPayment = paymentRepository.findByOrderId(orderId);
+        if (existingPayment.isEmpty()) {
+            logger.warn("No payment found for order: {}. Cannot process refund.", orderId);
+            throw new RuntimeException("Payment not found for order: " + orderId);
+        }
+
+        Payment payment = existingPayment.get();
+
+        // Validate payment can be refunded
+        if ("REFUNDED".equals(payment.getStatus())) {
+            logger.info("Payment for order {} is already refunded. Skipping.", orderId);
+            return payment; // Idempotency: already refunded
+        }
+
+        if (!"SUCCESS".equals(payment.getStatus())) {
+            logger.warn("Cannot refund payment for order {}. Current status: {}", orderId, payment.getStatus());
+            throw new RuntimeException("Cannot refund payment with status: " + payment.getStatus());
+        }
+
+        // Process refund (compensating transaction)
+        payment.setStatus("REFUNDED");
+        payment.setUpdatedAt(LocalDateTime.now());
+        paymentRepository.save(payment);
+
+        logger.info("Refund processed successfully for order: {}, transaction: {}", orderId,
+                payment.getTransactionId());
+
+        // Publish refund event (optional - for notification service)
+        paymentEventProducer.publishPaymentFailed(orderId, payment.getCustomerId(), "Order cancelled - " + reason);
+
+        return payment;
+    }
 }
