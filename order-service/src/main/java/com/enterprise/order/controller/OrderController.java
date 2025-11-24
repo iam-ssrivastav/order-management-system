@@ -46,6 +46,8 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/cancel")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Cancel an order", description = "Cancels an existing order and triggers compensating transactions (payment refund + inventory restoration)")
+    @io.swagger.v3.oas.annotations.Parameter(name = "reason", description = "Reason for cancellation (optional)", example = "Customer requested")
     public ResponseEntity<OrderResponse> cancelOrder(
             @PathVariable Long id,
             @RequestParam(required = false) String reason) {

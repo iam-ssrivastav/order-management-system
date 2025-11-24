@@ -67,6 +67,13 @@ graph TB
     
     Notification --> Kafka
     
+    %% Event Flow
+    Kafka -.->|OrderCreatedEvent| Payment
+    Kafka -.->|PaymentSuccessEvent| Inventory
+    Kafka -.->|PaymentSuccessEvent| Notification
+    Kafka -.->|OrderCancelledEvent| Payment
+    Kafka -.->|OrderCancelledEvent| Inventory
+    
     %% Observability Connections
     Order -.-> Trace
     Inventory -.-> Trace
@@ -86,9 +93,11 @@ graph TB
     Order -.-> Logstash
     Inventory -.-> Logstash
     Notification -.-> Logstash
+    Payment -.-> Logstash
     Logstash --> ES
     ES --> Kibana
     
+    %% Styling
     style Order fill:#4A90E2
     style Inventory fill:#4A90E2
     style Notification fill:#4A90E2
@@ -97,10 +106,13 @@ graph TB
     style Gateway fill:#7B68EE
     style Kafka fill:#FF6B6B
     style DB fill:#50C878
-    style Cache fill:#50C878
-    style Logstash fill:#F5A623
-    style ES fill:#F5A623
-    style Kibana fill:#F5A623
+    style Cache fill:#FFB347
+    style Trace fill:#9370DB
+    style Metrics fill:#20B2AA
+    style Dash fill:#20B2AA
+    style ES fill:#FEC601
+    style Logstash fill:#FEC601
+    style Kibana fill:#FEC601
 ```
 
 
