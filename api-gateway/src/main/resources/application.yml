@@ -69,6 +69,12 @@ spring:
             - Path=/notification-service/v3/api-docs
           filters:
             - RewritePath=/notification-service/(?<segment>.*), /$\{segment}
+        - id: payment-service-docs
+          uri: http://localhost:8085
+          predicates:
+            - Path=/payment-service/v3/api-docs
+          filters:
+            - RewritePath=/payment-service/(?<segment>.*), /$\{segment}
       globalcors:
         cors-configurations:
           '[/**]':
@@ -94,3 +100,5 @@ springdoc:
         url: /inventory-service/v3/api-docs
       - name: Notification Service
         url: /notification-service/v3/api-docs
+      - name: Payment Service
+        url: /payment-service/v3/api-docs
