@@ -281,6 +281,30 @@ curl -X GET http://localhost:8080/api/orders/customer/testuser \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
+**Cancel Order**
+```bash
+curl -X POST http://localhost:8080/api/orders/{orderId}/cancel?reason=Customer%20requested \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+Example response:
+```json
+{
+  "id": 12,
+  "productId": "laptop-cancel",
+  "quantity": 3,
+  "price": 500.00,
+  "customerId": "canceltest",
+  "status": "CANCELLED",
+  "createdAt": "2025-11-24T09:41:27.886944"
+}
+```
+
+**Note**: Cancelling an order triggers compensating transactions:
+- Payment is refunded (status: SUCCESS → REFUNDED)
+- Inventory stock is restored
+- Cancellation notification is sent
+
 ### Inventory
 
 **Check Stock**
