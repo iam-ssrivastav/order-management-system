@@ -34,20 +34,27 @@ graph TB
     Inventory[Inventory Service<br/>:8083]
     Notification[Notification Service<br/>:8084]
     Payment[Payment Service<br/>:8085]
-    Auth[Auth Service<br/>:8080]
+    
+    %% Outbox Components
+    OrderOutbox[(Order Outbox<br/>order_outbox_events)]
+    PaymentOutbox[(Payment Outbox<br/>payment_outbox_events)]
+    InventoryOutbox[(Inventory Outbox<br/>inventory_outbox_events)]
+    NotificationOutbox[(Notification Outbox<br/>notification_outbox_events)]
+    
+    OrderScheduler[Order Scheduler<br/>@Scheduled]
+    PaymentScheduler[Payment Scheduler<br/>@Scheduled]
+    InventoryScheduler[Inventory Scheduler<br/>@Scheduled]
+    NotificationScheduler[Notification Scheduler<br/>@Scheduled]
     
     Kafka[Apache Kafka<br/>Event Bus :19092]
+    OrdersTopic[orders topic]
+    NotificationsTopic[notifications topic]
+    CancellationTopic[order-cancellations topic]
     
     DB[(PostgreSQL<br/>:5435)]
     Cache[(Redis<br/>:6381)]
     Trace[Zipkin<br/>:9412]
     Metrics[Prometheus<br/>:9990]
-    Dash[Grafana<br/>:3000]
-    
-    %% ELK Stack
-    Logstash[Logstash<br/>:5000]
-    ES[(Elasticsearch<br/>:9200)]
-    Kibana[Kibana<br/>:5601]
     
     Client --> Frontend
     Frontend --> Gateway
@@ -55,26 +62,39 @@ graph TB
     Gateway --> Inventory
     Gateway --> Notification
     Gateway --> Payment
-    Gateway --> Auth
     
+    %% Outbox Pattern Flow
     Order --> DB
     Order --> Cache
-    Order --> Kafka
+    Order --> OrderOutbox
+    OrderOutbox --> OrderScheduler
+    OrderScheduler --> Kafka
     
     Payment --> DB
-    Payment --> Kafka
+    Payment --> PaymentOutbox
+    PaymentOutbox --> PaymentScheduler
+    PaymentScheduler --> Kafka
     
     Inventory --> DB
-    Inventory --> Kafka
+    Inventory --> InventoryOutbox
+    InventoryOutbox --> InventoryScheduler
+    InventoryScheduler --> Kafka
     
-    Notification --> Kafka
+    Notification --> NotificationOutbox
+    NotificationOutbox --> NotificationScheduler
+    NotificationScheduler --> Kafka
+    
+    %% Kafka Topics
+    Kafka --> OrdersTopic
+    Kafka --> NotificationsTopic
+    Kafka --> CancellationTopic
     
     %% Event Flow
-    Kafka -.->|OrderCreatedEvent| Payment
-    Kafka -.->|PaymentSuccessEvent| Inventory
-    Kafka -.->|PaymentSuccessEvent| Notification
-    Kafka -.->|OrderCancelledEvent| Payment
-    Kafka -.->|OrderCancelledEvent| Inventory
+    OrdersTopic -.->|ORDER_CREATED| Payment
+    OrdersTopic -.->|ORDER_CREATED| Inventory
+    OrdersTopic -.->|ORDER_CREATED| Notification
+    CancellationTopic -.->|ORDER_CANCELLED| Payment
+    CancellationTopic -.->|ORDER_CANCELLED| Inventory
     
     %% Observability Connections
     Order -.-> Trace
@@ -89,32 +109,28 @@ graph TB
     Payment -.-> Metrics
     Gateway -.-> Metrics
     
-    Metrics --> Dash
-    
-    %% Logging Connections
-    Order -.-> Logstash
-    Inventory -.-> Logstash
-    Notification -.-> Logstash
-    Payment -.-> Logstash
-    Logstash --> ES
-    ES --> Kibana
-    
     %% Styling
     style Order fill:#4A90E2
     style Inventory fill:#4A90E2
     style Notification fill:#4A90E2
     style Payment fill:#4A90E2
-    style Auth fill:#4A90E2
     style Gateway fill:#7B68EE
     style Kafka fill:#FF6B6B
+    style OrdersTopic fill:#FFB6C1
+    style NotificationsTopic fill:#FFB6C1
+    style CancellationTopic fill:#FFB6C1
     style DB fill:#50C878
     style Cache fill:#FFB347
     style Trace fill:#9370DB
     style Metrics fill:#20B2AA
-    style Dash fill:#20B2AA
-    style ES fill:#FEC601
-    style Logstash fill:#FEC601
-    style Kibana fill:#FEC601
+    style OrderOutbox fill:#98D8C8
+    style PaymentOutbox fill:#98D8C8
+    style InventoryOutbox fill:#98D8C8
+    style NotificationOutbox fill:#98D8C8
+    style OrderScheduler fill:#F7DC6F
+    style PaymentScheduler fill:#F7DC6F
+    style InventoryScheduler fill:#F7DC6F
+    style NotificationScheduler fill:#F7DC6F
 ```
 
 
