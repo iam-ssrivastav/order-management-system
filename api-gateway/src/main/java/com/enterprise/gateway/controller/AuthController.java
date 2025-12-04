@@ -20,10 +20,32 @@ public class AuthController {
     @PostMapping("/login")
     public Mono<String> login(@RequestParam String username) {
         // In a real app, validate password here
-        // Assign roles based on username
-        List<String> roles = username.toLowerCase().contains("admin")
-                ? Arrays.asList("ADMIN", "USER")
-                : Arrays.asList("USER");
+        // Assign roles based on username pattern
+        List<String> roles;
+        String lowerUsername = username.toLowerCase();
+
+        if (lowerUsername.contains("admin")) {
+            // ADMIN has all roles
+            roles = Arrays.asList("ADMIN", "MANAGER", "FINANCE", "AUDITOR", "SUPPORT", "WAREHOUSE", "USER");
+        } else if (lowerUsername.contains("manager")) {
+            // MANAGER has management + auditor + support capabilities
+            roles = Arrays.asList("MANAGER", "AUDITOR", "SUPPORT", "USER");
+        } else if (lowerUsername.contains("finance")) {
+            // FINANCE has financial operations + auditor
+            roles = Arrays.asList("FINANCE", "AUDITOR", "USER");
+        } else if (lowerUsername.contains("support")) {
+            // SUPPORT has customer support capabilities
+            roles = Arrays.asList("SUPPORT", "USER");
+        } else if (lowerUsername.contains("warehouse")) {
+            // WAREHOUSE has logistics capabilities
+            roles = Arrays.asList("WAREHOUSE", "USER");
+        } else if (lowerUsername.contains("auditor")) {
+            // AUDITOR has read-only access to everything
+            roles = Arrays.asList("AUDITOR", "USER");
+        } else {
+            // Default USER role
+            roles = Arrays.asList("USER");
+        }
 
         return Mono.just(jwtUtil.generateToken(username, roles));
     }
