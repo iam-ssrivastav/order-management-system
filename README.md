@@ -16,9 +16,11 @@ A production-ready microservices-based order management system built with Spring
 
 This project implements a **microservices architecture** with event-driven communication using Apache Kafka, demonstrating enterprise-level design patterns and best practices.
 
-### Architecture Diagram
+### System Architecture
 
-![Architecture Diagram](docs/architecture-diagram.png)
+![System Architecture](architecture-diagram.png)
+
+*Complete system architecture showing all microservices, Kafka event flow, PostgreSQL with Outbox Pattern, Redis caching, and observability stack (Prometheus, Zipkin).*
 
 ### Component Flow
 
