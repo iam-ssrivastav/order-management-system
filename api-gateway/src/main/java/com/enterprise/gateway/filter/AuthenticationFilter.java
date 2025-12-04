@@ -24,6 +24,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
         if (path.contains("/auth/token") ||
+                path.contains("/auth/login") ||
                 path.contains("/v3/api-docs") ||
                 path.contains("/swagger-ui") ||
                 path.contains("/webjars")) {
@@ -39,16 +40,34 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String token = authHeader.substring(7);
         try {
             validateToken(token);
+
+            // Extract roles from token and add to request headers
+            java.util.List<String> roles = extractRoles(token);
+            String rolesHeader = String.join(",", roles);
+
+            // Add roles to request for downstream services
+            ServerWebExchange modifiedExchange = exchange.mutate()
+                    .request(r -> r.header("X-User-Roles", rolesHeader))
+                    .build();
+
+            return chain.filter(modifiedExchange);
         } catch (Exception e) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
-
-        return chain.filter(exchange);
     }
 
     private void validateToken(String token) {
         Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
+    }
+
+    private java.util.List<String> extractRoles(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("roles", java.util.List.class);
     }
 
     private Key getSignKey() {

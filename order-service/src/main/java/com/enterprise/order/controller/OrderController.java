@@ -5,6 +5,7 @@ import com.enterprise.order.dto.OrderResponse;
 import com.enterprise.order.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,7 +47,8 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/cancel")
-    @io.swagger.v3.oas.annotations.Operation(summary = "Cancel an order", description = "Cancels an existing order and triggers compensating transactions (payment refund + inventory restoration)")
+    @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Cancel an order (ADMIN only)", description = "Cancels an existing order and triggers compensating transactions (payment refund + inventory restoration). Requires ADMIN role.")
     @io.swagger.v3.oas.annotations.Parameter(name = "reason", description = "Reason for cancellation (optional)", example = "Customer requested")
     public ResponseEntity<OrderResponse> cancelOrder(
             @PathVariable Long id,
