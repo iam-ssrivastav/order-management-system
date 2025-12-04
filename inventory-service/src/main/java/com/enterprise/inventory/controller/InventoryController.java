@@ -18,12 +18,14 @@ public class InventoryController {
     }
 
     @GetMapping("/{productId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('USER', 'WAREHOUSE', 'MANAGER', 'ADMIN', 'SUPPORT')")
     public Inventory getInventory(@PathVariable String productId) {
         return inventoryService.getInventory(productId);
     }
 
     @org.springframework.web.bind.annotation.PostMapping
     @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.OK)
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('WAREHOUSE', 'MANAGER', 'ADMIN')")
     public Inventory addStock(
             @org.springframework.web.bind.annotation.RequestBody com.enterprise.inventory.dto.StockUpdateRequest request) {
         return inventoryService.addStock(request.getProductId(), request.getQuantity());
@@ -31,6 +33,7 @@ public class InventoryController {
 
     @org.springframework.web.bind.annotation.PostMapping("/deduct")
     @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.OK)
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public void deductStock(
             @org.springframework.web.bind.annotation.RequestBody com.enterprise.inventory.dto.StockUpdateRequest request) {
         inventoryService.deductStock(request.getProductId(), request.getQuantity());

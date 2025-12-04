@@ -18,11 +18,13 @@ public class NotificationController {
     }
 
     @GetMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'SUPPORT', 'AUDITOR')")
     public List<NotificationRecord> getNotifications() {
         return notificationService.getNotificationHistory();
     }
 
     @PostMapping("/send")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'SUPPORT')")
     public String sendNotification(@RequestBody NotificationRequest request) {
         notificationService.sendNotification(request.getOrderId(), request.getCustomerId());
         return "Notification triggered for Order ID: " + request.getOrderId();

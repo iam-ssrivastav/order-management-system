@@ -18,12 +18,20 @@ import java.util.UUID;
 public class PaymentService {
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
     private final PaymentRepository paymentRepository;
-    private final PaymentEventProducer paymentEventProducer;
-    private final Random random = new Random();
+    private final com.enterprise.payment.repository.OutboxRepository outboxRepository;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    private final java.util.Random random = new java.util.Random();
 
-    public PaymentService(PaymentRepository paymentRepository, PaymentEventProducer paymentEventProducer) {
+    // Topics
+    private static final String PAYMENT_SUCCESS_TOPIC = "payment-success";
+    private static final String PAYMENT_FAILED_TOPIC = "payment-failed";
+
+    public PaymentService(PaymentRepository paymentRepository,
+            com.enterprise.payment.repository.OutboxRepository outboxRepository,
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
         this.paymentRepository = paymentRepository;
-        this.paymentEventProducer = paymentEventProducer;
+        this.outboxRepository = outboxRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional
@@ -54,15 +62,26 @@ public class PaymentService {
             logger.info("Payment SUCCESS for order: {}, transaction: {}", orderId, payment.getTransactionId());
             paymentRepository.save(payment);
 
-            // Publish PaymentSuccessEvent
-            paymentEventProducer.publishPaymentSuccess(orderId, customerId, amount);
+            // Save PaymentSuccessEvent to Outbox
+            java.util.Map<String, Object> successEvent = new java.util.HashMap<>();
+            successEvent.put("orderId", orderId);
+            successEvent.put("customerId", customerId);
+            successEvent.put("amount", amount);
+
+            saveOutboxEvent(String.valueOf(payment.getId()), "PAYMENT_SUCCESS", successEvent, PAYMENT_SUCCESS_TOPIC);
+
         } else {
             payment.setStatus("FAILED");
             logger.warn("Payment FAILED for order: {}", orderId);
             paymentRepository.save(payment);
 
-            // Publish PaymentFailedEvent
-            paymentEventProducer.publishPaymentFailed(orderId, customerId, "Insufficient funds");
+            // Save PaymentFailedEvent to Outbox
+            java.util.Map<String, Object> failedEvent = new java.util.HashMap<>();
+            failedEvent.put("orderId", orderId);
+            failedEvent.put("customerId", customerId);
+            failedEvent.put("reason", "Insufficient funds");
+
+            saveOutboxEvent(String.valueOf(payment.getId()), "PAYMENT_FAILED", failedEvent, PAYMENT_FAILED_TOPIC);
         }
 
         payment.setUpdatedAt(LocalDateTime.now());
@@ -104,9 +123,36 @@ public class PaymentService {
         logger.info("Refund processed successfully for order: {}, transaction: {}", orderId,
                 payment.getTransactionId());
 
-        // Publish refund event (optional - for notification service)
-        paymentEventProducer.publishPaymentFailed(orderId, payment.getCustomerId(), "Order cancelled - " + reason);
+        // Save refund event to Outbox (using failed topic as per original code logic
+        // for "cancellation" flow?)
+        // Original code: paymentEventProducer.publishPaymentFailed(orderId,
+        // payment.getCustomerId(), "Order cancelled - " + reason);
+        // This seems to be reusing the failed event for refunds/cancellations.
+
+        java.util.Map<String, Object> refundEvent = new java.util.HashMap<>();
+        refundEvent.put("orderId", orderId);
+        refundEvent.put("customerId", payment.getCustomerId());
+        refundEvent.put("reason", "Order cancelled - " + reason);
+
+        saveOutboxEvent(String.valueOf(payment.getId()), "PAYMENT_REFUNDED", refundEvent, PAYMENT_FAILED_TOPIC);
 
         return payment;
+    }
+
+    private void saveOutboxEvent(String aggregateId, String type, Object payload, String topic) {
+        try {
+            com.enterprise.payment.entity.OutboxEvent event = new com.enterprise.payment.entity.OutboxEvent();
+            event.setAggregateType("PAYMENT");
+            event.setAggregateId(aggregateId);
+            event.setType(type);
+            event.setTopic(topic);
+            event.setPayload(objectMapper.writeValueAsString(payload));
+            event.setPayloadClass(payload.getClass().getName());
+
+            outboxRepository.save(event);
+            logger.info("Saved event to Outbox: {} - {}", type, aggregateId);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save outbox event", e);
+        }
     }
 }

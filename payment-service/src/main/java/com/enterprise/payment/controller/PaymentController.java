@@ -15,6 +15,7 @@ public class PaymentController {
     }
 
     @GetMapping("/order/{orderId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('FINANCE', 'ADMIN', 'AUDITOR', 'MANAGER')")
     public ResponseEntity<Payment> getPaymentByOrderId(@PathVariable Long orderId) {
         return paymentService.getPaymentByOrderId(orderId)
                 .map(ResponseEntity::ok)
