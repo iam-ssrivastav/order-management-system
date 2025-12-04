@@ -1,4 +1,4 @@
-CREATE TABLE outbox_events (
+CREATE TABLE inventory_outbox_events (
     id BIGSERIAL PRIMARY KEY,
     aggregate_type VARCHAR(255),
     aggregate_id VARCHAR(255),

@@ -117,9 +117,11 @@ services:
       - "8084:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/order_db
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
     depends_on:
+      - postgres
       - kafka
       - zipkin
     networks:

@@ -3,6 +3,23 @@ server:
 spring:
   application:
     name: notification-service
+  datasource:
+    url: jdbc:postgresql://localhost:5435/order_db
+    username: admin
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    clean-on-validation-error: true
+    clean-disabled: false
+    table: flyway_schema_history_notification
   kafka:
     bootstrap-servers: localhost:19092
     consumer:

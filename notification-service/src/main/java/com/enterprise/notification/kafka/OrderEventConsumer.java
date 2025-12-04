@@ -21,7 +21,7 @@ public class OrderEventConsumer {
         this.objectMapper = objectMapper;
     }
 
-    @KafkaListener(topics = "order-events", groupId = "notification-group-v2")
+    @KafkaListener(topics = "orders", groupId = "notification-group-v2")
     public void consumeOrderEvent(String message) {
         log.info("Received order event for notification: {}", message);
         try {

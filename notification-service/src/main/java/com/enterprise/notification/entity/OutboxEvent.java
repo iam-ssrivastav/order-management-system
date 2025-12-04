@@ -1,35 +1,32 @@
-package com.enterprise.order.entity;
+package com.enterprise.notification.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "order_outbox_events")
+@Table(name = "notification_outbox_events")
 public class OutboxEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String aggregateType; // e.g., "ORDER"
-    private String aggregateId; // e.g., Order ID
-    private String type; // e.g., "ORDER_CREATED"
-    private String payloadClass; // Full class name for deserialization
+    private String aggregateType;
+    private String aggregateId;
+    private String type;
+    private String payloadClass;
 
     @Column(length = 4096)
-    private String payload; // JSON content
+    private String payload;
 
-    private String topic; // Kafka topic
-
+    private String topic;
     private LocalDateTime createdAt;
 
-    @PrePersist
-    public void onPrePersist() {
+    public OutboxEvent() {
         this.createdAt = LocalDateTime.now();
     }
 
     // Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -46,14 +43,6 @@ public class OutboxEvent {
         this.aggregateType = aggregateType;
     }
 
-    public String getPayloadClass() {
-        return payloadClass;
-    }
-
-    public void setPayloadClass(String payloadClass) {
-        this.payloadClass = payloadClass;
-    }
-
     public String getAggregateId() {
         return aggregateId;
     }
@@ -68,6 +57,14 @@ public class OutboxEvent {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getPayloadClass() {
+        return payloadClass;
+    }
+
+    public void setPayloadClass(String payloadClass) {
+        this.payloadClass = payloadClass;
     }
 
     public String getPayload() {
